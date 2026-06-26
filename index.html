@@ -320,6 +320,21 @@ footer .credit-btn:hover{background:var(--accent);color:#fff}
 footer .fsign{font-size:12px;color:var(--muted);margin-top:12px}
 footer .fsign b{color:var(--accent2)}
 
+.authpill{display:inline-block;font-size:12px;padding:5px 12px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.authpill.ok{border-color:var(--accent);color:var(--text)}
+.authlink{background:none;border:1px solid var(--accent);color:var(--text);font-family:'Cairo',sans-serif;font-weight:700;font-size:12px;padding:5px 14px;border-radius:20px;cursor:pointer;margin-inline-start:6px}
+.authlink:hover{background:var(--accent);color:#fff}
+.field{width:100%;font-family:'Cairo',sans-serif;font-size:14px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 12px;outline:none;margin-bottom:8px}
+.field:focus{border-color:var(--accent)}
+.msg{font-size:12.5px;margin-top:8px;color:var(--accent2);min-height:16px}
+.locked{font-size:12px;color:var(--muted);background:var(--surface2);border:1px dashed var(--border);border-radius:10px;padding:10px 12px}
+.danger{border-color:rgba(228,3,46,.4)!important}
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--accent);color:var(--text);
+  padding:11px 18px;border-radius:24px;font-size:13px;z-index:200;max-width:90%;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);animation:fade .2s ease;
+}
 @media(max-width:560px){
   .hero h1{font-size:26px}
   .tab-btn{min-width:0;font-size:12.5px;padding:10px 8px}
@@ -339,6 +354,7 @@ footer .fsign b{color:var(--accent2)}
     <div class="redline"></div>
     <div class="sign">صُممت وتُحدّث بواسطة <b>ربيع</b></div>
     <div class="lastupd">آخر تحديث للبيانات: <b id="lastUpdLabel">25/06/2026</b></div>
+    <div id="authBar" style="margin-top:12px"></div>
   </header>
 
   <!-- آخر التحديثات -->
@@ -643,27 +659,56 @@ footer .fsign b{color:var(--accent2)}
   <!-- ============ Settings ============ -->
   <section class="panel" id="tab-settings">
 
-    <div class="set-card">
-      <h3>✏️ تعديل يدوي مباشر</h3>
-      <p class="hint">اضغط على أي سعر في أي تبويب لفتح نافذة التعديل السريع، أو استخدم القائمة بالأسفل. تتغيّر الأسعار فوراً وتُحفظ تلقائياً في المتصفّح (localStorage)، ويظهر شارة 🆕 على كل سعر تغيّر اليوم.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-        <input type="text" class="search" id="setSearch" placeholder="ابحث عن جهاز للتعديل..." style="flex:1;min-width:200px">
-      </div>
-      <div class="set-list" id="setList"></div>
+    <!-- تسجيل الدخول (يظهر للزوّار عند تفعيل المزامنة) -->
+    <div class="set-card" id="loginCard" style="display:none">
+      <h3>🔐 تسجيل دخول الإدارة</h3>
+      <p class="hint">المشاهدة متاحة للجميع بدون حساب. لتعديل الأسعار يجب تسجيل الدخول بحساب أدمن أو سوبر أدمن.</p>
+      <input type="email" class="field" id="loginEmail" placeholder="البريد الإلكتروني" autocomplete="username">
+      <input type="password" class="field" id="loginPass" placeholder="كلمة المرور" autocomplete="current-password">
       <div class="btn-row">
-        <button class="btn btn-ghost" type="button" id="resetBtn">↺ استرجاع الأسعار الأصلية</button>
+        <button class="btn btn-primary" type="button" id="loginBtn">دخول</button>
+      </div>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+
+    <!-- ملاحظة العرض فقط -->
+    <div class="set-card" id="viewerNote" style="display:none">
+      <h3>👁️ وضع العرض</h3>
+      <p class="hint" style="margin:0">أنت في وضع المشاهدة. الأسعار للعرض فقط. للتعديل سجّل الدخول بحساب لديه صلاحية.</p>
+    </div>
+
+    <!-- أدوات التعديل (أدمن + سوبر أدمن) -->
+    <div id="editTools" style="display:none">
+      <div class="set-card">
+        <h3>✏️ تعديل يدوي مباشر</h3>
+        <p class="hint">اضغط على أي سعر في أي تبويب لفتح نافذة التعديل السريع، أو استخدم القائمة بالأسفل. تتغيّر الأسعار فوراً وتُحفظ وتتزامن على كل الأجهزة، ويظهر شارة 🆕 على كل سعر تغيّر اليوم.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <input type="text" class="search" id="setSearch" placeholder="ابحث عن جهاز للتعديل..." style="flex:1;min-width:200px">
+        </div>
+        <div class="set-list" id="setList"></div>
+      </div>
+
+      <div class="set-card">
+        <h3>💬 لصق رسالة واتساب</h3>
+        <p class="hint">الصق رسالة الأسعار كاملة هنا ثم اضغط «معالجة». سيحلّل النظام النص، يطابق الأجهزة مع الجدول الحالي، ويعرض معاينة «شو تغيّر» (قديم → جديد) قبل أن تؤكّد الحفظ.</p>
+        <textarea class="paste-area" id="pasteArea" placeholder="الصق رسالة الأسعار هنا..."></textarea>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="button" id="processBtn">⚙️ معالجة النص</button>
+          <button class="btn btn-ghost" type="button" id="confirmBtn" style="display:none">✓ تأكيد الحفظ</button>
+        </div>
+        <div class="preview" id="preview"></div>
       </div>
     </div>
 
-    <div class="set-card">
-      <h3>💬 لصق رسالة واتساب</h3>
-      <p class="hint">الصق رسالة الأسعار كاملة هنا ثم اضغط «معالجة». سيحلّل النظام النص، يطابق الأجهزة مع الجدول الحالي، ويعرض معاينة «شو تغيّر» (قديم → جديد) قبل أن تؤكّد الحفظ.</p>
-      <textarea class="paste-area" id="pasteArea" placeholder="الصق رسالة الأسعار هنا..."></textarea>
+    <!-- لوحة السوبر أدمن -->
+    <div class="set-card danger" id="superPanel" style="display:none">
+      <h3>👑 لوحة السوبر أدمن</h3>
+      <p class="hint">إدارة المدراء: رقّي أي مستخدم سجّل الدخول مرة واحدة ليصبح أدمن، أو ألغِ صلاحيته. المستخدمون يظهرون هنا بعد أول تسجيل دخول لهم.</p>
+      <div class="set-list" id="adminsList"></div>
       <div class="btn-row">
-        <button class="btn btn-primary" type="button" id="processBtn">⚙️ معالجة النص</button>
-        <button class="btn btn-ghost" type="button" id="confirmBtn" style="display:none">✓ تأكيد الحفظ</button>
+        <button class="btn btn-ghost" type="button" id="reloadAdmins">↻ تحديث القائمة</button>
+        <button class="btn btn-ghost" type="button" id="resetBtn">↺ تصفير كل الأسعار للأصل</button>
       </div>
-      <div class="preview" id="preview"></div>
     </div>
 
   </section>
@@ -715,9 +760,27 @@ footer .fsign b{color:var(--accent2)}
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 (function(){
   "use strict";
+
+  /* =================================================================
+     ====  إعدادات قاعدة البيانات (Firebase) — املأها لتفعيل المزامنة ====
+     إذا تركتها فارغة يعمل النظام محلياً فقط على هذا الجهاز.
+  ================================================================= */
+  var firebaseConfig = {
+    apiKey: "AIzaSyD7bgPgSq7HNK-E1nEK02XhCyVC-yHfgLY",
+    authDomain: "tee-mobile.firebaseapp.com",
+    projectId: "tee-mobile",
+    storageBucket: "tee-mobile.firebasestorage.app",
+    messagingSenderId: "481654002756",
+    appId: "1:481654002756:web:117b055c39dd6dc3121811"
+  };
+  var SUPER_ADMIN_EMAIL = "rabeea@gmail.com";  /* بريد السوبر أدمن (المالك) */
+  /* ================================================================= */
 
   var STORE_KEY = "tmobile_prices_v1";
   var store = {};
@@ -730,6 +793,7 @@ footer .fsign b{color:var(--accent2)}
   }
   function saveStore(){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
+    cloudPush();
   }
 
   function fmt(n){
@@ -886,23 +950,41 @@ footer .fsign b{color:var(--accent2)}
   }
 
   /* ===== tabs ===== */
+  function switchTab(tab){
+    var all = document.querySelectorAll(".tab-btn");
+    var j;
+    for(j=0;j<all.length;j++){
+      if(all[j].getAttribute("data-tab") === tab){ all[j].className = "tab-btn active"; }
+      else{ all[j].className = "tab-btn"; }
+    }
+    var panels = document.querySelectorAll(".panel");
+    for(j=0;j<panels.length;j++){ panels[j].className = "panel"; }
+    var p = getEl("tab-"+tab);
+    if(p){ p.className = "panel active"; }
+    window.scrollTo(0,0);
+  }
   function initTabs(){
     var btns = document.querySelectorAll(".tab-btn");
     var i;
     for(i=0;i<btns.length;i++){
-      btns[i].onclick = function(){
-        var tab = this.getAttribute("data-tab");
-        var all = document.querySelectorAll(".tab-btn");
-        var j;
-        for(j=0;j<all.length;j++){ all[j].className = "tab-btn"; }
-        this.className = "tab-btn active";
-        var panels = document.querySelectorAll(".panel");
-        for(j=0;j<panels.length;j++){ panels[j].className = "panel"; }
-        var p = getEl("tab-"+tab);
-        if(p){ p.className = "panel active"; }
-        window.scrollTo(0,0);
-      };
+      btns[i].onclick = function(){ switchTab(this.getAttribute("data-tab")); };
     }
+  }
+
+  /* ===== toast ===== */
+  var toastTimer = null;
+  function toast(txt){
+    var t = getEl("appToast");
+    if(!t){
+      t = document.createElement("div");
+      t.id = "appToast";
+      t.className = "toast";
+      document.body.appendChild(t);
+    }
+    t.textContent = txt;
+    t.style.display = "block";
+    if(toastTimer){ clearTimeout(toastTimer); }
+    toastTimer = setTimeout(function(){ t.style.display = "none"; }, 3000);
   }
 
   /* ===== accordions ===== */
@@ -1022,6 +1104,7 @@ footer .fsign b{color:var(--accent2)}
   /* ===== edit popup ===== */
   var editingId = null;
   function openEdit(id){
+    if(!canEdit()){ toast("للتعديل: سجّل دخول الإدارة من تبويب «الإعدادات»."); return; }
     editingId = id;
     var el = document.querySelector('.price[data-id="'+id+'"]');
     if(!el){ return; }
@@ -1203,14 +1286,201 @@ footer .fsign b{color:var(--accent2)}
     list.innerHTML = html;
   }
   function initSet(){
-    getEl("setSearch").oninput = renderSetList;
-    getEl("resetBtn").onclick = function(){
-      store = {};
-      saveStore();
-      renderAll();
-      renderSetList();
-      applyFilters();
+    var ss = getEl("setSearch");
+    if(ss){ ss.oninput = renderSetList; }
+    var rb = getEl("resetBtn");
+    if(rb){
+      rb.onclick = function(){
+        if(!isSuper()){ toast("هذه الصلاحية للسوبر أدمن فقط."); return; }
+        store = {};
+        saveStore();
+        renderAll();
+        renderSetList();
+        applyFilters();
+        toast("تم تصفير كل الأسعار للأصل.");
+      };
+    }
+    var ra = getEl("reloadAdmins");
+    if(ra){ ra.onclick = loadAdminsList; }
+  }
+
+  /* ===================== Cloud + Auth (Firebase) ===================== */
+  var cloudOn = false, fbDb = null, fbAuth = null;
+  var currentUser = null, currentRole = "viewer";
+
+  function cloudConfigured(){
+    return firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
+  }
+  function canEdit(){
+    if(!cloudOn){ return true; }
+    return currentRole === "admin" || currentRole === "super";
+  }
+  function isSuper(){
+    if(!cloudOn){ return true; }
+    return currentRole === "super";
+  }
+
+  function initCloud(){
+    if(!cloudConfigured() || typeof firebase === "undefined"){
+      cloudOn = false;
+      updateAuthUI();
+      return;
+    }
+    try{
+      firebase.initializeApp(firebaseConfig);
+      fbDb = firebase.firestore();
+      fbAuth = firebase.auth();
+      cloudOn = true;
+
+      fbDb.collection("prices").doc("current").onSnapshot(function(doc){
+        if(doc && doc.exists){
+          var data = doc.data() || {};
+          store = data.map ? data.map : {};
+          try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
+          renderAll();
+          renderSetList();
+          applyFilters();
+          var lbl = getEl("lastUpdLabel");
+          if(lbl && data.updatedAt){
+            var d = new Date(data.updatedAt);
+            lbl.textContent = (d.getDate()) + "/" + (d.getMonth()+1) + "/" + d.getFullYear();
+          }
+        }
+      }, function(err){});
+
+      fbAuth.onAuthStateChanged(function(u){ handleAuth(u); });
+    }catch(e){ cloudOn = false; }
+    updateAuthUI();
+  }
+
+  function cloudPush(){
+    if(!cloudOn || !fbDb || !canEdit()){ return; }
+    var payload = {
+      map: store,
+      updatedAt: Date.now(),
+      updatedBy: currentUser ? (currentUser.email || "") : ""
     };
+    try{ fbDb.collection("prices").doc("current").set(payload); }catch(e){}
+  }
+
+  function handleAuth(u){
+    currentUser = u;
+    if(!u){ currentRole = "viewer"; updateAuthUI(); return; }
+    try{ fbDb.collection("users").doc(u.uid).set({ email: u.email || "", last: Date.now() }, { merge: true }); }catch(e){}
+    if(SUPER_ADMIN_EMAIL && u.email && u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()){
+      currentRole = "super";
+      updateAuthUI();
+      return;
+    }
+    fbDb.collection("admins").doc(u.uid).get().then(function(d){
+      currentRole = (d && d.exists) ? "admin" : "viewer";
+      updateAuthUI();
+    }).catch(function(){ currentRole = "viewer"; updateAuthUI(); });
+  }
+
+  function doLogin(){
+    if(!fbAuth){ return; }
+    var email = getEl("loginEmail").value;
+    var pass = getEl("loginPass").value;
+    var msg = getEl("loginMsg");
+    msg.textContent = "جارٍ الدخول...";
+    fbAuth.signInWithEmailAndPassword(email, pass).then(function(){
+      msg.textContent = "";
+      getEl("loginPass").value = "";
+      toast("تم تسجيل الدخول بنجاح.");
+    }).catch(function(e){
+      msg.textContent = "فشل الدخول. تأكد من البريد وكلمة المرور.";
+    });
+  }
+  function doLogout(){
+    if(fbAuth){ fbAuth.signOut(); toast("تم تسجيل الخروج."); }
+  }
+
+  function updateAuthUI(){
+    var bar = getEl("authBar");
+    var loginCard = getEl("loginCard");
+    var editTools = getEl("editTools");
+    var superPanel = getEl("superPanel");
+    var viewerNote = getEl("viewerNote");
+
+    if(!cloudOn){
+      if(bar){ bar.innerHTML = '<span class="authpill">وضع محلي على هذا الجهاز (المزامنة غير مفعّلة)</span>'; }
+      if(loginCard){ loginCard.style.display = "none"; }
+      if(viewerNote){ viewerNote.style.display = "none"; }
+      if(editTools){ editTools.style.display = "block"; }
+      if(superPanel){ superPanel.style.display = "none"; }
+      return;
+    }
+
+    if(currentUser){
+      var roleTxt = currentRole === "super" ? "سوبر أدمن 👑" : (currentRole === "admin" ? "أدمن 🛠️" : "مشاهدة 👁️");
+      bar.innerHTML = '<span class="authpill ok">' + escapeHtml(currentUser.email || "") + ' — ' + roleTxt + '</span><button class="authlink" id="logoutBtn" type="button">خروج</button>';
+      var lo = getEl("logoutBtn");
+      if(lo){ lo.onclick = doLogout; }
+      if(loginCard){ loginCard.style.display = "none"; }
+      var ce = canEdit();
+      if(editTools){ editTools.style.display = ce ? "block" : "none"; }
+      if(viewerNote){ viewerNote.style.display = ce ? "none" : "block"; }
+      if(superPanel){ superPanel.style.display = (currentRole === "super") ? "block" : "none"; }
+      if(currentRole === "super"){ loadAdminsList(); }
+    }else{
+      bar.innerHTML = '<button class="authlink" id="goLogin" type="button">🔐 تسجيل دخول الإدارة</button>';
+      var gl = getEl("goLogin");
+      if(gl){ gl.onclick = function(){ switchTab("settings"); var e = getEl("loginEmail"); if(e){ e.focus(); } }; }
+      if(loginCard){ loginCard.style.display = "block"; }
+      if(editTools){ editTools.style.display = "none"; }
+      if(viewerNote){ viewerNote.style.display = "block"; }
+      if(superPanel){ superPanel.style.display = "none"; }
+    }
+  }
+
+  function loadAdminsList(){
+    var box = getEl("adminsList");
+    if(!box || !fbDb){ return; }
+    fbDb.collection("users").get().then(function(us){
+      fbDb.collection("admins").get().then(function(as){
+        var adminSet = {};
+        as.forEach(function(d){ adminSet[d.id] = true; });
+        var html = "";
+        us.forEach(function(d){
+          var u = d.data() || {};
+          var uid = d.id;
+          var em = u.email || uid;
+          if(SUPER_ADMIN_EMAIL && em && em.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()){
+            html += '<div class="sli"><span class="nm">' + escapeHtml(em) + '</span><span class="authpill ok">سوبر أدمن 👑</span></div>';
+            return;
+          }
+          var isA = !!adminSet[uid];
+          html += '<div class="sli"><span class="nm">' + escapeHtml(em) + '</span>' +
+                  '<button class="btn ' + (isA ? "btn-ghost" : "btn-primary") + ' adminToggle" data-uid="' + uid + '" data-on="' + (isA ? "1" : "0") + '" style="padding:6px 12px;font-size:12px">' +
+                  (isA ? "إلغاء الأدمن" : "ترقية لأدمن") + '</button></div>';
+        });
+        if(html === ""){ html = '<div style="padding:12px;color:var(--muted);font-size:13px">لا يوجد مستخدمون بعد. اطلب منهم تسجيل الدخول مرة واحدة ليظهروا هنا.</div>'; }
+        box.innerHTML = html;
+        var btns = box.querySelectorAll(".adminToggle");
+        var i;
+        for(i=0;i<btns.length;i++){
+          btns[i].onclick = function(){
+            toggleAdmin(this.getAttribute("data-uid"), this.getAttribute("data-on") === "1");
+          };
+        }
+      });
+    }).catch(function(){});
+  }
+  function toggleAdmin(uid, isOn){
+    if(!fbDb || !isSuper()){ return; }
+    if(isOn){
+      fbDb.collection("admins").doc(uid).delete().then(function(){ toast("تم إلغاء صلاحية الأدمن."); loadAdminsList(); });
+    }else{
+      fbDb.collection("admins").doc(uid).set({ granted: Date.now() }).then(function(){ toast("تمت الترقية لأدمن."); loadAdminsList(); });
+    }
+  }
+
+  function initAuth(){
+    var lb = getEl("loginBtn");
+    if(lb){ lb.onclick = doLogin; }
+    var lp = getEl("loginPass");
+    if(lp){ lp.onkeydown = function(ev){ if(ev.keyCode === 13){ doLogin(); } }; }
   }
 
   /* ===== about ===== */
@@ -1231,9 +1501,11 @@ footer .fsign b{color:var(--accent2)}
     initPaste();
     initSet();
     initAbout();
+    initAuth();
     renderAll();
     renderSetList();
     applyFilters();
+    initCloud();
   }
 
   if(document.readyState === "loading"){
