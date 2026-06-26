@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة الأسعار — T-Mobile Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c10;
+  --surface:#111318;
+  --surface2:#181c24;
+  --border:#1e2430;
+  --accent:#e4032e;
+  --accent2:#ff6b35;
+  --text:#f0f2f5;
+  --muted:#7a8494;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cairo',sans-serif;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+/* fixed red grid pattern */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(228,3,46,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(228,3,46,0.05) 1px, transparent 1px);
+  background-size:42px 42px;
+  background-position:center center;
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 0%, rgba(228,3,46,0.10), transparent 60%);
+}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 14px 60px}
+.num{font-family:'Rajdhani','Cairo',sans-serif;font-weight:700}
+
+/* ===== header ===== */
+.topbar{
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  padding:8px 0 4px;
+  letter-spacing:.5px;
+}
+.topbar b{color:var(--accent2)}
+header.hero{
+  text-align:center;
+  padding:18px 10px 24px;
+}
+.crown{font-size:26px;line-height:1;filter:drop-shadow(0 2px 6px rgba(228,3,46,.5))}
+.hero h1{
+  font-family:'Rajdhani','Cairo',sans-serif;
+  font-weight:700;
+  font-size:34px;
+  letter-spacing:1px;
+  margin-top:4px;
+  background:linear-gradient(180deg,#ffffff 0%,#c7ccd6 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero .sub{font-size:13px;color:var(--muted);margin-top:2px}
+.redline{
+  width:90px;height:4px;border-radius:4px;margin:12px auto 0;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  box-shadow:0 0 14px rgba(228,3,46,.6);
+}
+.sign{font-size:12.5px;color:var(--muted);margin-top:12px}
+.sign b{color:var(--text)}
+.lastupd{
+  display:inline-block;margin-top:10px;font-size:12px;color:var(--muted);
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:5px 14px;
+}
+.lastupd b{color:var(--accent2);font-family:'Rajdhani',sans-serif}
+
+/* ===== updates card ===== */
+.updates{
+  display:none;
+  background:linear-gradient(180deg,var(--surface2),var(--surface));
+  border:1px solid var(--accent);
+  border-radius:14px;
+  padding:14px 16px;
+  margin:6px 0 18px;
+  box-shadow:0 0 22px rgba(228,3,46,.12);
+}
+.updates h3{font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.updates h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.updates ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.updates li{font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:var(--text)}
+.updates li .old{color:var(--muted);text-decoration:line-through;font-family:'Rajdhani',sans-serif}
+.updates li .arrow{color:var(--accent2)}
+.updates li .new{color:#36d399;font-family:'Rajdhani',sans-serif;font-weight:700}
+
+/* ===== tabs ===== */
+.tabs{
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:8px;margin-bottom:18px;
+  position:sticky;top:8px;z-index:30;backdrop-filter:blur(6px);
+}
+.tab-btn{
+  flex:1 1 auto;min-width:120px;
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;
+  color:var(--muted);background:transparent;border:1px solid transparent;
+  padding:11px 14px;border-radius:10px;cursor:pointer;transition:.18s;
+}
+.tab-btn:hover{color:var(--text);background:var(--surface2)}
+.tab-btn.active{
+  color:#fff;background:linear-gradient(180deg,var(--accent),#b00224);
+  box-shadow:0 4px 14px rgba(228,3,46,.35);
+}
+.panel{display:none}
+.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== controls (search + filters) ===== */
+.controls{margin-bottom:14px}
+.search{
+  width:100%;font-family:'Cairo',sans-serif;font-size:14px;color:var(--text);
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;outline:none;
+}
+.search:focus{border-color:var(--accent)}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.fbtn{
+  font-family:'Cairo',sans-serif;font-size:12.5px;font-weight:600;
+  color:var(--muted);background:var(--surface);border:1px solid var(--border);
+  padding:7px 13px;border-radius:20px;cursor:pointer;transition:.15s;
+}
+.fbtn:hover{color:var(--text)}
+.fbtn.active{color:#fff;background:var(--accent);border-color:var(--accent)}
+
+/* ===== accordion ===== */
+.acc{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;margin-bottom:12px;overflow:hidden;
+}
+.acc-head{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:16px;color:var(--text);
+  background:linear-gradient(90deg,var(--surface2),var(--surface));
+  border:none;padding:14px 16px;cursor:pointer;text-align:right;
+}
+.acc-head .chev{color:var(--accent2);transition:.2s;font-size:14px}
+.acc.open .acc-head .chev{transform:rotate(180deg)}
+.acc-head .count{font-size:12px;color:var(--muted);font-weight:600;margin-inline-start:auto;margin-inline-end:10px}
+.acc-body{display:none;overflow-x:auto}
+.acc.open .acc-body{display:block}
+
+/* ===== table ===== */
+table.ptable{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+.ptable thead th{
+  background:var(--surface2);color:var(--muted);font-weight:600;font-size:12px;
+  padding:10px 8px;text-align:right;border-bottom:1px solid var(--border);
+  white-space:nowrap;position:sticky;top:0;
+}
+.ptable td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ptable tr.row:hover{background:rgba(255,255,255,.02)}
+.ptable td.stcol{white-space:nowrap}
+.colstore{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#fff}
+
+/* badges */
+.badge{
+  display:inline-block;font-size:11.5px;font-weight:700;
+  padding:3px 9px;border-radius:8px;white-space:nowrap;line-height:1.5;
+  font-family:'Cairo',sans-serif;
+}
+.b-iq{background:rgba(54,211,153,.16);color:#36d399;border:1px solid rgba(54,211,153,.4)}
+.b-hk{background:rgba(96,165,250,.16);color:#7db8ff;border:1px solid rgba(96,165,250,.4)}
+.b-jp{background:rgba(255,107,107,.16);color:#ff8b8b;border:1px solid rgba(255,107,107,.4)}
+.b-ch{background:rgba(245,200,66,.16);color:#f5c842;border:1px solid rgba(245,200,66,.45)}
+.b-in{background:rgba(255,138,53,.16);color:#ffa15c;border:1px solid rgba(255,138,53,.45)}
+.b-us{background:rgba(56,213,234,.16);color:#56d5ea;border:1px solid rgba(56,213,234,.4)}
+.b-ae{background:rgba(178,127,255,.16);color:#b27fff;border:1px solid rgba(178,127,255,.45)}
+.b-none{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.note{background:var(--surface2);color:#cfd6e0;border:1px solid var(--border);font-size:11px}
+.note.fire{background:rgba(255,107,53,.14);color:var(--accent2);border-color:rgba(255,107,53,.4)}
+
+/* status */
+.st-active{background:rgba(54,211,153,.16);color:#36d399;border:1px solid rgba(54,211,153,.4)}
+.st-noactive{background:rgba(255,138,53,.14);color:#ffa15c;border:1px solid rgba(255,138,53,.4)}
+.st-sold{background:rgba(228,3,46,.16);color:#ff6b81;border:1px solid rgba(228,3,46,.45)}
+
+/* price */
+.price{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:#fff;
+  cursor:pointer;border-radius:8px;padding:3px 8px;display:inline-block;
+  border:1px solid transparent;transition:.15s;white-space:nowrap;
+}
+.price:hover{border-color:var(--accent);background:rgba(228,3,46,.08)}
+.price.sold{color:#ff6b81;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700}
+.price.changed{color:#36d399;box-shadow:0 0 0 1px rgba(54,211,153,.4) inset}
+
+/* ===== cards grid ===== */
+.section-title{
+  font-family:'Rajdhani','Cairo',sans-serif;font-weight:700;font-size:18px;
+  color:#fff;margin:22px 0 12px;display:flex;align-items:center;gap:10px;
+}
+.section-title::before{content:"";width:5px;height:20px;border-radius:4px;background:linear-gradient(var(--accent),var(--accent2))}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.card{
+  background:linear-gradient(180deg,var(--surface2),var(--surface));
+  border:1px solid var(--border);border-radius:14px;padding:14px;
+  display:flex;flex-direction:column;gap:8px;transition:.15s;
+}
+.card:hover{border-color:rgba(228,3,46,.4);transform:translateY(-2px)}
+.card .ctitle{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:#fff}
+.card .csub{font-size:12px;color:var(--muted)}
+.card .cbadges{display:flex;gap:6px;flex-wrap:wrap}
+.card .cprice{margin-top:auto;padding-top:6px;border-top:1px solid var(--border)}
+.tag{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:7px}
+.tag-sold{background:rgba(228,3,46,.16);color:#ff6b81;border:1px solid rgba(228,3,46,.4)}
+.tag-lock{background:rgba(245,200,66,.14);color:#f5c842;border:1px solid rgba(245,200,66,.4)}
+.tag-wifi{background:rgba(96,165,250,.14);color:#7db8ff;border:1px solid rgba(96,165,250,.4)}
+.tag-sim{background:rgba(54,211,153,.14);color:#36d399;border:1px solid rgba(54,211,153,.4)}
+.tag-nano{background:rgba(178,127,255,.14);color:#b27fff;border:1px solid rgba(178,127,255,.4)}
+.tag-new{background:rgba(255,107,53,.16);color:var(--accent2);border:1px solid rgba(255,107,53,.45)}
+.tag-corp{background:var(--surface2);color:#cfd6e0;border:1px solid var(--border)}
+
+/* ===== settings ===== */
+.set-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:16px;
+}
+.set-card h3{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.set-card p.hint{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px}
+.paste-area{
+  width:100%;min-height:170px;resize:vertical;
+  font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);line-height:1.8;
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px;
+  outline:none;direction:rtl;
+}
+.paste-area:focus{border-color:var(--accent)}
+.btn{
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;
+  border:none;border-radius:10px;padding:11px 20px;transition:.15s;
+}
+.btn-primary{background:linear-gradient(180deg,var(--accent),#b00224);color:#fff;box-shadow:0 4px 14px rgba(228,3,46,.3)}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--accent)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.preview{margin-top:14px;display:none;flex-direction:column;gap:8px}
+.preview .pv{
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+}
+.preview .pv .nm{font-weight:700;color:#fff}
+.preview .pv .old{color:var(--muted);text-decoration:line-through;font-family:'Rajdhani',sans-serif}
+.preview .pv .arrow{color:var(--accent2)}
+.preview .pv .new{color:#36d399;font-family:'Rajdhani',sans-serif;font-weight:700}
+.preview .none{color:var(--muted);font-size:13px}
+.set-list{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:12px}
+.set-list .sli{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 12px;border-bottom:1px solid var(--border);font-size:13px;
+}
+.set-list .sli:last-child{border-bottom:none}
+.set-list .sli .nm{color:#cfd6e0}
+
+/* ===== popup ===== */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;padding:18px;
+}
+.overlay.show{display:flex}
+.modal{
+  width:100%;max-width:380px;background:var(--surface);
+  border:1px solid var(--accent);border-radius:16px;padding:20px;
+  box-shadow:0 18px 50px rgba(0,0,0,.6);animation:pop .2s ease;
+}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:16px;margin-bottom:4px}
+.modal .mname{font-size:13px;color:var(--muted);margin-bottom:14px;word-break:break-word}
+.modal label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 5px}
+.modal input,.modal select{
+  width:100%;font-family:'Rajdhani','Cairo',sans-serif;font-size:16px;color:#fff;
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:11px 12px;outline:none;
+}
+.modal input:focus,.modal select:focus{border-color:var(--accent)}
+.modal .mbtns{display:flex;gap:10px;margin-top:18px}
+.modal .mbtns .btn{flex:1}
+
+/* about modal */
+.about{max-width:440px;border-color:var(--border)}
+.about h3{color:var(--accent2)}
+.about p{font-size:13.5px;color:#cfd6e0;line-height:1.9;margin-top:8px}
+.about ul{margin:8px 14px 0;font-size:13px;color:#cfd6e0;line-height:1.9}
+
+/* footer */
+footer{text-align:center;margin-top:34px;padding-top:20px;border-top:1px solid var(--border)}
+footer .credit-btn{
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;
+  background:var(--surface);color:var(--text);border:1px solid var(--accent);
+  border-radius:24px;padding:9px 20px;transition:.15s;
+}
+footer .credit-btn:hover{background:var(--accent);color:#fff}
+footer .fsign{font-size:12px;color:var(--muted);margin-top:12px}
+footer .fsign b{color:var(--accent2)}
+
+@media(max-width:560px){
+  .hero h1{font-size:26px}
+  .tab-btn{min-width:0;font-size:12.5px;padding:10px 8px}
+  .price{font-size:15px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">صُممت وتُحدّث بواسطة <b>ربيع</b> — T-Mobile Centre</div>
+
+  <header class="hero">
+    <div class="crown">👑</div>
+    <h1>T-MOBILE CENTRE</h1>
+    <div class="sub">نظام إدارة الأسعار الموحّد</div>
+    <div class="redline"></div>
+    <div class="sign">صُممت وتُحدّث بواسطة <b>ربيع</b></div>
+    <div class="lastupd">آخر تحديث للبيانات: <b id="lastUpdLabel">25/06/2026</b></div>
+  </header>
+
+  <!-- آخر التحديثات -->
+  <div class="updates" id="updatesCard">
+    <h3><span class="dot"></span> آخر التحديثات اليوم</h3>
+    <ul id="updatesList"></ul>
+  </div>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" type="button" data-tab="iphone">iPhone</button>
+    <button class="tab-btn" type="button" data-tab="ipad">iPad</button>
+    <button class="tab-btn" type="button" data-tab="watch">Watch &amp; Accessories</button>
+    <button class="tab-btn" type="button" data-tab="settings">الإعدادات</button>
+  </div>
+
+  <!-- ============ iPhone ============ -->
+  <section class="panel active" id="tab-iphone">
+    <div class="controls">
+      <input type="text" class="search" id="searchInput" placeholder="بحث... (مثال: 17 max 1tera hk orange)">
+      <div class="filters" id="filters">
+        <button class="fbtn active" type="button" data-filter="all">الكل</button>
+        <button class="fbtn" type="button" data-filter="iq">🇮🇶 عراقي</button>
+        <button class="fbtn" type="button" data-filter="hk">🇭🇰 HK</button>
+        <button class="fbtn" type="button" data-filter="jp">🇯🇵 JP</button>
+        <button class="fbtn" type="button" data-filter="ch">🇨🇳 CH</button>
+        <button class="fbtn" type="button" data-filter="in">🇮🇳 India</button>
+        <button class="fbtn" type="button" data-filter="incentive">🎁 حافز</button>
+      </div>
+    </div>
+
+    <!-- 17 Pro Max -->
+    <div class="acc open" data-group="g1">
+      <button class="acc-head" type="button"><span>iPhone 17 Pro Max</span><span class="count"></span><span class="chev">▾</span></button>
+      <div class="acc-body">
+        <table class="ptable">
+          <thead><tr><th>التخزين</th><th>اللون</th><th>المنشأ</th><th>الشريحة</th><th>الحالة</th><th>ملاحظات</th><th>السعر</th></tr></thead>
+          <tbody>
+            <tr class="row" data-name="17 max 2tera hk orange" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">2TB</td><td>برتقالي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p1">Active</span></td><td>—</td><td><span class="price" data-id="p1" data-price="3350000" data-status="active">3.350.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 2tera ar mix color" data-origin="iq" data-incentive="0" data-notes=""><td class="colstore">2TB</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p2">Active</span></td><td>—</td><td><span class="price" data-id="p2" data-price="3370000" data-status="active">3.370.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 2tera hk silver" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">2TB</td><td>فضي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p3">Active</span></td><td>—</td><td><span class="price" data-id="p3" data-price="3375000" data-status="active">3.375.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 2tera orange esim jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">2TB</td><td>برتقالي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p4">Active</span></td><td>—</td><td><span class="price" data-id="p4" data-price="3120000" data-status="active">3.120.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 2tera silver esim jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">2TB</td><td>فضي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p5">Active</span></td><td>—</td><td><span class="price" data-id="p5" data-price="3160000" data-status="active">3.160.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera silver ch" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">1TB</td><td>فضي</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-noactive" id="st-p6">No Active</span></td><td><span class="badge note">دبل</span></td><td><span class="price" data-id="p6" data-price="3380000" data-status="noactive">3.380.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera orange hk" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>برتقالي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-noactive" id="st-p7">No Active</span></td><td>—</td><td><span class="price" data-id="p7" data-price="2720000" data-status="noactive">2.720.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera orange hk active" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>برتقالي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p8">Active</span></td><td>—</td><td><span class="price" data-id="p8" data-price="2710000" data-status="active">2.710.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera mix color ar" data-origin="iq" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p9">Active</span></td><td>—</td><td><span class="price" data-id="p9" data-price="2730000" data-status="active">2.730.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera hk silver" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>فضي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p10">Active</span></td><td>—</td><td><span class="price" data-id="p10" data-price="2750000" data-status="active">2.750.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera hk blue" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>أزرق</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p11">Active</span></td><td>—</td><td><span class="price" data-id="p11" data-price="2750000" data-status="active">2.750.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera orange esim jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>برتقالي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p12">Active</span></td><td>—</td><td><span class="price" data-id="p12" data-price="2540000" data-status="active">2.540.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera blue esim jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>أزرق</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p13">Active</span></td><td>—</td><td><span class="price" data-id="p13" data-price="2530000" data-status="active">2.530.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 1tera silver esim jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>فضي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p14">Active</span></td><td>—</td><td><span class="price" data-id="p14" data-price="2525000" data-status="active">2.525.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 512 orange ar mix color" data-origin="iq" data-incentive="0" data-notes="mix color"><td class="colstore">512</td><td>برتقالي/ألوان</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p15">Active</span></td><td><span class="badge note">Mix</span></td><td><span class="price" data-id="p15" data-price="2420000" data-status="active">2.420.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 512 ch mix color" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">512</td><td>ألوان متعددة</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-noactive" id="st-p16">No Active</span></td><td><span class="badge note">دبل</span></td><td><span class="price" data-id="p16" data-price="2690000" data-status="noactive">2.690.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 512 hk orange" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">512</td><td>برتقالي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-noactive" id="st-p17">No Active</span></td><td>—</td><td><span class="price" data-id="p17" data-price="2420000" data-status="noactive">2.420.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 512 blue hk" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">512</td><td>أزرق</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p18">Active</span></td><td>—</td><td><span class="price" data-id="p18" data-price="2410000" data-status="active">2.410.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 512 mix color hk active" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">512</td><td>ألوان متعددة</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p19">Active</span></td><td>—</td><td><span class="price" data-id="p19" data-price="2400000" data-status="active">2.400.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 512 silver hk" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">512</td><td>فضي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p20">Active</span></td><td>—</td><td><span class="price" data-id="p20" data-price="2425000" data-status="active">2.425.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 512 esim mix color jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">512</td><td>ألوان متعددة</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p21">Active</span></td><td>—</td><td><span class="price" data-id="p21" data-price="2230000" data-status="active">2.230.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ar silver" data-origin="iq" data-incentive="0" data-notes=""><td class="colstore">256</td><td>فضي</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p22">Active</span></td><td>—</td><td><span class="price" data-id="p22" data-price="2045000" data-status="active">2.045.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ar silver master" data-origin="iq" data-incentive="0" data-notes="master"><td class="colstore">256</td><td>فضي</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p23">Active</span></td><td><span class="badge note">Master</span></td><td><span class="price" data-id="p23" data-price="2080000" data-status="active">2.080.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ar master orange" data-origin="iq" data-incentive="0" data-notes="master قفل"><td class="colstore">256</td><td>برتقالي</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p24">Active</span></td><td><span class="badge note">Master</span> <span class="badge note">قفل</span></td><td><span class="price" data-id="p24" data-price="2050000" data-status="active">2.050.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ar master blue" data-origin="iq" data-incentive="0" data-notes="master قفل"><td class="colstore">256</td><td>أزرق</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p25">Active</span></td><td><span class="badge note">Master</span> <span class="badge note">قفل</span></td><td><span class="price" data-id="p25" data-price="2045000" data-status="active">2.045.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ar blue" data-origin="iq" data-incentive="0" data-notes="قفل"><td class="colstore">256</td><td>أزرق</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p26">Active</span></td><td><span class="badge note">قفل</span></td><td><span class="price" data-id="p26" data-price="2030000" data-status="active">2.030.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ar orange" data-origin="iq" data-incentive="0" data-notes="قفل"><td class="colstore">256</td><td>برتقالي</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p27">Active</span></td><td><span class="badge note">قفل</span></td><td><span class="price" data-id="p27" data-price="2035000" data-status="active">2.035.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 hk orange" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">256</td><td>برتقالي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-noactive" id="st-p28">No Active</span></td><td>—</td><td><span class="price" data-id="p28" data-price="2015000" data-status="noactive">2.015.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 hk silver" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">256</td><td>فضي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p29">Active</span></td><td>—</td><td><span class="price" data-id="p29" data-price="2025000" data-status="active">2.025.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 esim silver jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>فضي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p30">Active</span></td><td>—</td><td><span class="price" data-id="p30" data-price="1810000" data-status="active">1.810.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 esim blue jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>أزرق</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p31">Active</span></td><td>—</td><td><span class="price" data-id="p31" data-price="1790000" data-status="active">1.790.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 esim orange jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>برتقالي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p32">Active</span></td><td>—</td><td><span class="price" data-id="p32" data-price="1785000" data-status="active">1.785.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ch blue" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">256</td><td>أزرق</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-active" id="st-p33">Active</span></td><td><span class="badge note">دبل</span></td><td><span class="price" data-id="p33" data-price="2155000" data-status="active">2.155.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ch silver" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">256</td><td>فضي</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-active" id="st-p34">Active</span></td><td><span class="badge note">دبل</span></td><td><span class="price" data-id="p34" data-price="2155000" data-status="active">2.155.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 max 256 ch orange" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">256</td><td>برتقالي</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-active" id="st-p35">Active</span></td><td><span class="badge note">دبل</span></td><td><span class="price" data-id="p35" data-price="2160000" data-status="active">2.160.000 د.ع</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 17 Pro -->
+    <div class="acc open" data-group="g2">
+      <button class="acc-head" type="button"><span>iPhone 17 Pro</span><span class="count"></span><span class="chev">▾</span></button>
+      <div class="acc-body">
+        <table class="ptable">
+          <thead><tr><th>التخزين</th><th>اللون</th><th>المنشأ</th><th>الشريحة</th><th>الحالة</th><th>ملاحظات</th><th>السعر</th></tr></thead>
+          <tbody>
+            <tr class="row" data-name="17 pro 1tera hk blue" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>أزرق</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p36">Active</span></td><td>—</td><td><span class="price" data-id="p36" data-price="2520000" data-status="active">2.520.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 1tera mix color ar" data-origin="iq" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p37">Active</span></td><td>—</td><td><span class="price" data-id="p37" data-price="2550000" data-status="active">2.550.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 1tera esim blue jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>أزرق</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p38">Active</span></td><td>—</td><td><span class="price" data-id="p38" data-price="2340000" data-status="active">2.340.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 1tera esim orange jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">1TB</td><td>برتقالي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p39">Active</span></td><td>—</td><td><span class="price" data-id="p39" data-price="2355000" data-status="active">2.355.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 512 mix color ar" data-origin="iq" data-incentive="0" data-notes="وكاله"><td class="colstore">512</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p40">Active</span></td><td><span class="badge note">وكاله</span></td><td><span class="price" data-id="p40" data-price="2250000" data-status="active">2.250.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 512 hk orange active" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">512</td><td>برتقالي</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p41">Active</span></td><td>—</td><td><span class="price" data-id="p41" data-price="2175000" data-status="active">2.175.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 512 esim mix color jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">512</td><td>ألوان متعددة</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p42">Active</span></td><td>—</td><td><span class="price" data-id="p42" data-price="2160000" data-status="active">2.160.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 256 ar mix color" data-origin="iq" data-incentive="0" data-notes=""><td class="colstore">256</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p43">Active</span></td><td>—</td><td><span class="price" data-id="p43" data-price="1895000" data-status="active">1.895.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 256 hk blue" data-origin="hk" data-incentive="0" data-notes=""><td class="colstore">256</td><td>أزرق</td><td><span class="badge b-hk">🇭🇰 HK</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p44">Active</span></td><td>—</td><td><span class="price" data-id="p44" data-price="1915000" data-status="active">1.915.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 256 ch" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">256</td><td>ألوان متعددة</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-active" id="st-p45">Active</span></td><td><span class="badge note">دبل</span></td><td><span class="price" data-id="p45" data-price="2100000" data-status="active">2.100.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 256 esim orange jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>برتقالي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p46">Active</span></td><td>—</td><td><span class="price" data-id="p46" data-price="1770000" data-status="active">1.770.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 256 esim blue jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>أزرق</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p47">Active</span></td><td>—</td><td><span class="price" data-id="p47" data-price="1740000" data-status="active">1.740.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 pro 256 esim silver jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>فضي</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p48">Active</span></td><td>—</td><td><span class="price" data-id="p48" data-price="1740000" data-status="active">1.740.000 د.ع</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 17 Air -->
+    <div class="acc open" data-group="g3">
+      <button class="acc-head" type="button"><span>iPhone 17 Air</span><span class="count"></span><span class="chev">▾</span></button>
+      <div class="acc-body">
+        <table class="ptable">
+          <thead><tr><th>التخزين</th><th>اللون</th><th>المنشأ</th><th>الشريحة</th><th>الحالة</th><th>ملاحظات</th><th>السعر</th></tr></thead>
+          <tbody>
+            <tr class="row" data-name="17 air 1 tera abm ar" data-origin="iq" data-incentive="1" data-notes="abm حافز"><td class="colstore">1TB</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p49">Active</span></td><td><span class="badge note fire">🔥 حافز</span></td><td><span class="price" data-id="p49" data-price="2190000" data-status="active">2.190.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 air 512 ar" data-origin="iq" data-incentive="0" data-notes=""><td class="colstore">512</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p50">Active</span></td><td>—</td><td><span class="price" data-id="p50" data-price="1780000" data-status="active">1.780.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 air 256 black jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>أسود</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p51">Active</span></td><td>—</td><td><span class="price" data-id="p51" data-price="1390000" data-status="active">1.390.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 air 256 blue jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>أزرق</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p52">Active</span></td><td>—</td><td><span class="price" data-id="p52" data-price="1375000" data-status="active">1.375.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 air 256 white jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>أبيض</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p53">Active</span></td><td>—</td><td><span class="price" data-id="p53" data-price="1375000" data-status="active">1.375.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 air 256 gold us" data-origin="us" data-incentive="0" data-notes=""><td class="colstore">256</td><td>ذهبي</td><td><span class="badge b-us">🇺🇸 US</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p54">Active</span></td><td>—</td><td><span class="price" data-id="p54" data-price="1370000" data-status="active">1.370.000 د.ع</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 17 -->
+    <div class="acc open" data-group="g4">
+      <button class="acc-head" type="button"><span>iPhone 17</span><span class="count"></span><span class="chev">▾</span></button>
+      <div class="acc-body">
+        <table class="ptable">
+          <thead><tr><th>التخزين</th><th>اللون</th><th>المنشأ</th><th>الشريحة</th><th>الحالة</th><th>ملاحظات</th><th>السعر</th></tr></thead>
+          <tbody>
+            <tr class="row" data-name="17 512 mix color ar sim" data-origin="iq" data-incentive="0" data-notes="وكاله"><td class="colstore">512</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p55">Active</span></td><td><span class="badge note">وكاله</span></td><td><span class="price" data-id="p55" data-price="1660000" data-status="active">1.660.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 256 mix color jp" data-origin="jp" data-incentive="0" data-notes=""><td class="colstore">256</td><td>ألوان متعددة</td><td><span class="badge b-jp">🇯🇵 JP</span></td><td>eSIM</td><td class="stcol"><span class="badge st-active" id="st-p56">Active</span></td><td>—</td><td><span class="price" data-id="p56" data-price="1210000" data-status="active">1.210.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 256 mix color ch" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">256</td><td>ألوان متعددة</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-active" id="st-p57">Active</span></td><td><span class="badge note">دبل</span></td><td><span class="price" data-id="p57" data-price="1360000" data-status="active">1.360.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 256 بنفسجي india sim active" data-origin="in" data-incentive="1" data-notes="حافز"><td class="colstore">256</td><td>بنفسجي</td><td><span class="badge b-in">🇮🇳 India</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p58">Active</span></td><td><span class="badge note fire">🔥 حافز</span></td><td><span class="price" data-id="p58" data-price="1245000" data-status="active">1.245.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 256 mix color india sim active" data-origin="in" data-incentive="1" data-notes="حافز"><td class="colstore">256</td><td>ألوان متعددة</td><td><span class="badge b-in">🇮🇳 India</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p59">Active</span></td><td><span class="badge note fire">🔥 حافز</span></td><td><span class="price" data-id="p59" data-price="1200000" data-status="active">1.200.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 256 mix color india sim no active" data-origin="in" data-incentive="0" data-notes=""><td class="colstore">256</td><td>ألوان متعددة</td><td><span class="badge b-in">🇮🇳 India</span></td><td>SIM</td><td class="stcol"><span class="badge st-noactive" id="st-p60">No Active</span></td><td>—</td><td><span class="price" data-id="p60" data-price="1340000" data-status="noactive">1.340.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17 256 mix color ar sim" data-origin="iq" data-incentive="0" data-notes="وكاله"><td class="colstore">256</td><td>ألوان متعددة</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p61">Active</span></td><td><span class="badge note">وكاله</span></td><td><span class="price" data-id="p61" data-price="1355000" data-status="active">1.355.000 د.ع</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 17e -->
+    <div class="acc open" data-group="g5">
+      <button class="acc-head" type="button"><span>iPhone 17e</span><span class="count"></span><span class="chev">▾</span></button>
+      <div class="acc-body">
+        <table class="ptable">
+          <thead><tr><th>التخزين</th><th>اللون</th><th>المنشأ</th><th>الشريحة</th><th>الحالة</th><th>ملاحظات</th><th>السعر</th></tr></thead>
+          <tbody>
+            <tr class="row" data-name="17e 256 white ar sim" data-origin="iq" data-incentive="1" data-notes="خصم مميز"><td class="colstore">256</td><td>أبيض</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p62">Active</span></td><td><span class="badge note fire">خصم مميز</span></td><td><span class="price" data-id="p62" data-price="1160000" data-status="active">1.160.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17e 256 pink india sim" data-origin="in" data-incentive="0" data-notes=""><td class="colstore">256</td><td>وردي</td><td><span class="badge b-in">🇮🇳 India</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p63">Active</span></td><td>—</td><td><span class="price" data-id="p63" data-price="990000" data-status="active">990.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17e 256 white ch dual sim" data-origin="ch" data-incentive="1" data-notes="خصم مميز دبل"><td class="colstore">256</td><td>أبيض</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-active" id="st-p64">Active</span></td><td><span class="badge note fire">خصم مميز</span></td><td><span class="price" data-id="p64" data-price="1070000" data-status="active">1.070.000 د.ع</span></td></tr>
+            <tr class="row" data-name="17e 512 pink ar sim" data-origin="iq" data-incentive="1" data-notes="خصم مميز"><td class="colstore">512</td><td>وردي</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p65">Active</span></td><td><span class="badge note fire">خصم مميز</span></td><td><span class="price" data-id="p65" data-price="1450000" data-status="active">1.450.000 د.ع</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 16 series -->
+    <div class="acc open" data-group="g6">
+      <button class="acc-head" type="button"><span>iPhone 16 / 16e / Plus</span><span class="count"></span><span class="chev">▾</span></button>
+      <div class="acc-body">
+        <table class="ptable">
+          <thead><tr><th>التخزين</th><th>اللون</th><th>المنشأ</th><th>الشريحة</th><th>الحالة</th><th>ملاحظات</th><th>السعر</th></tr></thead>
+          <tbody>
+            <tr class="row" data-name="16 max 256 desert ar uae" data-origin="ae" data-incentive="0" data-notes=""><td class="colstore">256</td><td>صحراوي</td><td><span class="badge b-ae">🇦🇪 UAE</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p66">Active</span></td><td><span class="badge note">16 Pro Max</span></td><td><span class="price" data-id="p66" data-price="1740000" data-status="active">1.740.000 د.ع</span></td></tr>
+            <tr class="row" data-name="16 e 512 black master ar" data-origin="iq" data-incentive="0" data-notes="master"><td class="colstore">512</td><td>أسود</td><td><span class="badge b-iq">🇮🇶 عراقي</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p67">Active</span></td><td><span class="badge note">16e Master</span></td><td><span class="price" data-id="p67" data-price="1450000" data-status="active">1.450.000 د.ع</span></td></tr>
+            <tr class="row" data-name="16 128 mix color india active" data-origin="in" data-incentive="0" data-notes=""><td class="colstore">128</td><td>ألوان متعددة</td><td><span class="badge b-in">🇮🇳 India</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p68">Active</span></td><td><span class="badge note">iPhone 16</span></td><td><span class="price" data-id="p68" data-price="960000" data-status="active">960.000 د.ع</span></td></tr>
+            <tr class="row" data-name="16 128 mix color india" data-origin="in" data-incentive="0" data-notes=""><td class="colstore">128</td><td>ألوان متعددة</td><td><span class="badge b-in">🇮🇳 India</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p69">Active</span></td><td><span class="badge note">iPhone 16</span></td><td><span class="price" data-id="p69" data-price="1060000" data-status="active">1.060.000 د.ع</span></td></tr>
+            <tr class="row" data-name="16 128 white black ch" data-origin="ch" data-incentive="0" data-notes="دبل"><td class="colstore">128</td><td>أبيض/أسود</td><td><span class="badge b-ch">🇨🇳 CH</span></td><td>دبل</td><td class="stcol"><span class="badge st-active" id="st-p70">Active</span></td><td><span class="badge note">iPhone 16</span></td><td><span class="price" data-id="p70" data-price="1150000" data-status="active">1.150.000 د.ع</span></td></tr>
+            <tr class="row" data-name="16 plus pink 256" data-origin="none" data-incentive="0" data-notes=""><td class="colstore">256</td><td>وردي</td><td><span class="badge b-none">—</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p71">Active</span></td><td><span class="badge note">16 Plus</span></td><td><span class="price" data-id="p71" data-price="1350000" data-status="active">1.350.000 د.ع</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 15 & 13 -->
+    <div class="acc open" data-group="g7">
+      <button class="acc-head" type="button"><span>iPhone 15 / 13</span><span class="count"></span><span class="chev">▾</span></button>
+      <div class="acc-body">
+        <table class="ptable">
+          <thead><tr><th>التخزين</th><th>اللون</th><th>المنشأ</th><th>الشريحة</th><th>الحالة</th><th>ملاحظات</th><th>السعر</th></tr></thead>
+          <tbody>
+            <tr class="row" data-name="15 128 active" data-origin="none" data-incentive="0" data-notes=""><td class="colstore">128</td><td>ألوان متعددة</td><td><span class="badge b-none">—</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p72">Active</span></td><td><span class="badge note">iPhone 15</span></td><td><span class="price" data-id="p72" data-price="870000" data-status="active">870.000 د.ع</span></td></tr>
+            <tr class="row" data-name="ip 13 128 black" data-origin="none" data-incentive="0" data-notes=""><td class="colstore">128</td><td>أسود</td><td><span class="badge b-none">—</span></td><td>SIM</td><td class="stcol"><span class="badge st-active" id="st-p73">Active</span></td><td><span class="badge note">iPhone 13</span></td><td><span class="price" data-id="p73" data-price="720000" data-status="active">720.000 د.ع</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ iPad ============ -->
+  <section class="panel" id="tab-ipad">
+
+    <div class="section-title">iPad Pro 13″ 2025 (M5)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">Pro 13″ M5</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd1" data-price="1920000" data-status="active">1.920.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">512GB</div><div class="csub">Pro 13″ M5</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd2" data-price="2340000" data-status="active">2.340.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">1TB</div><div class="csub">Pro 13″ M5</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd3" data-price="2920000" data-status="active">2.920.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">1TB</div><div class="csub">Pro 13″ M5</div><div class="cbadges"><span class="tag tag-nano">Nano Texture</span></div><div class="cprice"><span class="price" data-id="ipd4" data-price="2990000" data-status="active">2.990.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">2TB</div><div class="csub">Pro 13″ M5</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span></div><div class="cprice"><span class="price" data-id="ipd5" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+    </div>
+
+    <div class="section-title">iPad Pro 13″ 2024 (M4)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">2TB</div><div class="csub">Pro 13″ M4</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span></div><div class="cprice"><span class="price" data-id="ipd6" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+      <div class="card"><div class="ctitle">1TB</div><div class="csub">Pro 13″ M4</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd7" data-price="2210000" data-status="active">2.210.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">Pro 13″ M4</div><div class="cbadges"><span class="tag tag-sim">SIM</span></div><div class="cprice"><span class="price" data-id="ipd8" data-price="1790000" data-status="active">1.790.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">512GB</div><div class="csub">Pro 13″ M4</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span></div><div class="cprice"><span class="price" data-id="ipd9" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+    </div>
+
+    <div class="section-title">iPad Pro 11″ 2025 (M5)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">Pro 11″ M5</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd10" data-price="1630000" data-status="active">1.630.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">512GB</div><div class="csub">Pro 11″ M5</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd11" data-price="1920000" data-status="active">1.920.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">iPad Pro 11″ 2024 (M4)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">Pro 11″ M4</div><div class="cbadges"><span class="tag tag-wifi">WiFi</span></div><div class="cprice"><span class="price" data-id="ipd12" data-price="1420000" data-status="active">1.420.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">512GB</div><div class="csub">Pro 11″ M4</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span></div><div class="cprice"><span class="price" data-id="ipd13" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+      <div class="card"><div class="ctitle">1TB</div><div class="csub">Pro 11″ M4</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span></div><div class="cprice"><span class="price" data-id="ipd14" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+      <div class="card"><div class="ctitle">2TB</div><div class="csub">Pro 11″ M4</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd15" data-price="1940000" data-status="active">1.940.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">iPad 11 (A16)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">A16 — وردي</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd16" data-price="845000" data-status="active">845.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">A16 — شركات</div><div class="cbadges"><span class="tag tag-corp">شركات</span></div><div class="cprice"><span class="price" data-id="ipd17" data-price="820000" data-status="active">820.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">128GB</div><div class="csub">A16 — Master ABM</div><div class="cbadges"><span class="tag tag-corp">Master</span></div><div class="cprice"><span class="price" data-id="ipd18" data-price="645000" data-status="active">645.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">128GB</div><div class="csub">A16 — Mix color</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd19" data-price="635000" data-status="active">635.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">iPad Air 13″ (M4)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">128GB</div><div class="csub">Air 13″ M4</div><div class="cbadges"><span class="tag tag-lock">قفل</span><span class="tag tag-new">🔥</span></div><div class="cprice"><span class="price" data-id="ipd20" data-price="1385000" data-status="active">1.385.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">Air 13″ M4</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span><span class="tag tag-lock">قفل</span></div><div class="cprice"><span class="price" data-id="ipd21" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+      <div class="card"><div class="ctitle">512GB</div><div class="csub">Air 13″ M4</div><div class="cbadges"><span class="tag tag-lock">قفل</span><span class="tag tag-new">🔥</span></div><div class="cprice"><span class="price" data-id="ipd22" data-price="1950000" data-status="active">1.950.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">iPad Air 13″ (M3)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">128GB</div><div class="csub">Air 13″ M3</div><div class="cbadges"><span class="tag tag-lock">قفل</span><span class="tag tag-new">🔥</span></div><div class="cprice"><span class="price" data-id="ipd23" data-price="1215000" data-status="active">1.215.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">iPad Air 11″ (M4)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">128GB</div><div class="csub">Air 11″ M4 — 🇮🇶</div><div class="cbadges"><span class="tag tag-wifi">WiFi</span><span class="tag tag-new">🔥</span></div><div class="cprice"><span class="price" data-id="ipd24" data-price="1090000" data-status="active">1.090.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">256GB</div><div class="csub">Air 11″ M4</div><div class="cbadges"><span class="tag tag-wifi">WiFi</span><span class="tag tag-new">🔥</span></div><div class="cprice"><span class="price" data-id="ipd25" data-price="1260000" data-status="active">1.260.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">128GB</div><div class="csub">Air 11″ M4</div><div class="cbadges"><span class="tag tag-sim">SIM</span><span class="tag tag-new">🔥</span></div><div class="cprice"><span class="price" data-id="ipd26" data-price="1460000" data-status="active">1.460.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">iPad mini</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">mini 7 — 128GB</div><div class="csub">⬜️ متوفر</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="ipd27" data-price="890000" data-status="active">890.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">mini 6 — 64GB</div><div class="csub">⬜️</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span></div><div class="cprice"><span class="price" data-id="ipd28" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+      <div class="card"><div class="ctitle">mini 7 — 256GB</div><div class="csub">⬜️</div><div class="cbadges"><span class="tag tag-sold">Sold Out</span></div><div class="cprice"><span class="price" data-id="ipd29" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+    </div>
+
+  </section>
+
+  <!-- ============ Watch & Accessories ============ -->
+  <section class="panel" id="tab-watch">
+
+    <div class="section-title">Apple Watch Ultra 3 (2025)</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">Ultra 3 — 49mm</div><div class="csub">سير حديد</div><div class="cbadges"><span class="tag tag-new">🆕 جديد</span></div><div class="cprice"><span class="price" data-id="w1" data-price="1410000" data-status="active">1.410.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">Ultra 3 — تيتانيوم</div><div class="csub">Titanium</div><div class="cbadges"><span class="tag tag-new">🆕 جديد</span><span class="tag tag-sold">نفذ</span></div><div class="cprice"><span class="price" data-id="w2" data-price="0" data-sold="1" data-status="sold">نفذ</span></div></div>
+      <div class="card"><div class="ctitle">Ultra 3 — ربر</div><div class="csub">تيتانيوم / أسود</div><div class="cbadges"><span class="tag tag-new">🆕 جديد</span><span class="tag tag-corp">شركات</span></div><div class="cprice"><span class="price" data-id="w3" data-price="1140000" data-status="active">1.140.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">Apple Watch Series 11</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">S11 — 46mm</div><div class="csub">شركات</div><div class="cbadges"><span class="tag tag-corp">شركات</span></div><div class="cprice"><span class="price" data-id="w4" data-price="535000" data-status="active">535.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">S11 — 42mm</div><div class="csub">شركات — ألوان</div><div class="cbadges"><span class="tag tag-corp">شركات</span></div><div class="cprice"><span class="price" data-id="w5" data-price="525000" data-status="active">525.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">Apple Watch SE</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">S9 SE2 — 44mm</div><div class="csub">Mix color</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="w6" data-price="355000" data-status="active">355.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">S9 SE2 — 40mm</div><div class="csub">Mix color</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="w7" data-price="320000" data-status="active">320.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">SE3 — 44mm (2025)</div><div class="csub">Mix color</div><div class="cbadges"><span class="tag tag-new">🆕 جديد</span></div><div class="cprice"><span class="price" data-id="w8" data-price="440000" data-status="active">440.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">SE3 — 40mm</div><div class="csub">Mix color</div><div class="cbadges"><span class="tag tag-new">🆕 جديد</span></div><div class="cprice"><span class="price" data-id="w9" data-price="410000" data-status="active">410.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">AirPods</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">AirPods 4 (NC) 2024</div><div class="csub">عزل ضوضاء</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="w10" data-price="290000" data-status="active">290.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">AirPods 4 (2024)</div><div class="csub">بدون عزل</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="w11" data-price="175000" data-status="active">175.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">AirPods Max 2</div><div class="csub">USB-C</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="w12" data-price="990000" data-status="active">990.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">AirPods Max</div><div class="csub">Lightning</div><div class="cbadges"></div><div class="cprice"><span class="price" data-id="w13" data-price="740000" data-status="active">740.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">AirPods Pro 3</div><div class="csub">—</div><div class="cbadges"><span class="tag tag-new">🆕 جديد</span></div><div class="cprice"><span class="price" data-id="w14" data-price="320000" data-status="active">320.000 د.ع</span></div></div>
+    </div>
+
+    <div class="section-title">Apple Pencil</div>
+    <div class="grid">
+      <div class="card"><div class="ctitle">Apple Pencil Pro</div><div class="csub">شركات</div><div class="cbadges"><span class="tag tag-corp">شركات</span></div><div class="cprice"><span class="price" data-id="w15" data-price="180000" data-status="active">180.000 د.ع</span></div></div>
+      <div class="card"><div class="ctitle">Apple Pencil 1</div><div class="csub">t.c</div><div class="cbadges"><span class="tag tag-lock">قفل</span></div><div class="cprice"><span class="price" data-id="w16" data-price="135000" data-status="active">135.000 د.ع</span></div></div>
+    </div>
+
+  </section>
+
+  <!-- ============ Settings ============ -->
+  <section class="panel" id="tab-settings">
+
+    <div class="set-card">
+      <h3>✏️ تعديل يدوي مباشر</h3>
+      <p class="hint">اضغط على أي سعر في أي تبويب لفتح نافذة التعديل السريع، أو استخدم القائمة بالأسفل. تتغيّر الأسعار فوراً وتُحفظ تلقائياً في المتصفّح (localStorage)، ويظهر شارة 🆕 على كل سعر تغيّر اليوم.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <input type="text" class="search" id="setSearch" placeholder="ابحث عن جهاز للتعديل..." style="flex:1;min-width:200px">
+      </div>
+      <div class="set-list" id="setList"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" type="button" id="resetBtn">↺ استرجاع الأسعار الأصلية</button>
+      </div>
+    </div>
+
+    <div class="set-card">
+      <h3>💬 لصق رسالة واتساب</h3>
+      <p class="hint">الصق رسالة الأسعار كاملة هنا ثم اضغط «معالجة». سيحلّل النظام النص، يطابق الأجهزة مع الجدول الحالي، ويعرض معاينة «شو تغيّر» (قديم → جديد) قبل أن تؤكّد الحفظ.</p>
+      <textarea class="paste-area" id="pasteArea" placeholder="الصق رسالة الأسعار هنا..."></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" type="button" id="processBtn">⚙️ معالجة النص</button>
+        <button class="btn btn-ghost" type="button" id="confirmBtn" style="display:none">✓ تأكيد الحفظ</button>
+      </div>
+      <div class="preview" id="preview"></div>
+    </div>
+
+  </section>
+
+  <!-- footer -->
+  <footer>
+    <button class="credit-btn" type="button" id="aboutBtn">👑 بواسطة ربيع — عن النظام</button>
+    <div class="fsign">صُممت وتُحدّث بواسطة <b>ربيع</b> — T-Mobile Centre</div>
+  </footer>
+
+</div>
+
+<!-- price edit popup -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <h3>تعديل السعر / الحالة</h3>
+    <div class="mname" id="editName">—</div>
+    <label>السعر (د.ع)</label>
+    <input type="number" id="editPrice" inputmode="numeric">
+    <label>الحالة</label>
+    <select id="editStatus">
+      <option value="active">Active</option>
+      <option value="noactive">No Active</option>
+      <option value="sold">Sold Out</option>
+    </select>
+    <div class="mbtns">
+      <button class="btn btn-ghost" type="button" id="editCancel">إلغاء</button>
+      <button class="btn btn-primary" type="button" id="editSave">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- about popup -->
+<div class="overlay" id="aboutOverlay">
+  <div class="modal about">
+    <h3>👑 عن النظام</h3>
+    <p>نظام إدارة أسعار <b>T-Mobile Centre</b> — صفحة واحدة تجمع كل أسعار iPhone و iPad و الساعات و الإكسسوارات بشكل منظّم.</p>
+    <ul>
+      <li>تبويبات منفصلة لكل فئة منتجات.</li>
+      <li>تعديل أي سعر فوراً بالضغط عليه + حفظ تلقائي.</li>
+      <li>لصق رسالة واتساب ومطابقة الأسعار آلياً.</li>
+      <li>شارة 🆕 وبطاقة «آخر التحديثات» لكل تغييرات اليوم.</li>
+      <li>تنبيه صوتي خفيف عند كل تحديث.</li>
+    </ul>
+    <p style="margin-top:14px;color:var(--accent2);font-weight:700">صُممت وتُحدّث بواسطة ربيع</p>
+    <div class="mbtns">
+      <button class="btn btn-primary" type="button" id="aboutClose">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORE_KEY = "tmobile_prices_v1";
+  var store = {};
+
+  function loadStore(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw){ store = JSON.parse(raw) || {}; }
+    }catch(e){ store = {}; }
+  }
+  function saveStore(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
+  }
+
+  function fmt(n){
+    return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " د.ع";
+  }
+
+  function todayStr(){
+    var d = new Date();
+    var m = d.getMonth()+1;
+    var day = d.getDate();
+    return d.getFullYear()+"-"+(m<10?"0"+m:m)+"-"+(day<10?"0"+day:day);
+  }
+
+  function beep(){
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC){ return; }
+      var ac = new AC();
+      var o = ac.createOscillator();
+      var g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = "sine";
+      o.frequency.value = 880;
+      g.gain.value = 0.06;
+      o.start();
+      setTimeout(function(){ o.stop(); try{ ac.close(); }catch(e){} }, 130);
+    }catch(e){}
+  }
+
+  function getEl(id){ return document.getElementById(id); }
+
+  /* ===== render all prices ===== */
+  function renderAll(){
+    var els = document.querySelectorAll(".price");
+    var i;
+    for(i=0;i<els.length;i++){
+      var el = els[i];
+      var id = el.getAttribute("data-id");
+      var base = parseInt(el.getAttribute("data-price"),10) || 0;
+      var baseSold = el.getAttribute("data-sold") === "1";
+      var baseStatus = el.getAttribute("data-status") || "active";
+      var ov = store[id] || {};
+
+      var status = ov.status != null ? ov.status : (baseSold ? "sold" : baseStatus);
+      var price = ov.price != null ? ov.price : base;
+      var changedToday = (ov.date === todayStr());
+
+      el.className = "price";
+      if(status === "sold"){
+        el.className = "price sold";
+        el.textContent = "نفذ";
+      }else{
+        var txt = fmt(price);
+        if(changedToday){ el.className = "price changed"; el.textContent = "🆕 " + txt; }
+        else{ el.textContent = txt; }
+      }
+
+      var stb = getEl("st-"+id);
+      if(stb){
+        if(status === "active"){ stb.className = "badge st-active"; stb.textContent = "Active"; }
+        else if(status === "noactive"){ stb.className = "badge st-noactive"; stb.textContent = "No Active"; }
+        else{ stb.className = "badge st-sold"; stb.textContent = "Sold Out"; }
+      }
+    }
+    renderUpdates();
+  }
+
+  function effectivePrice(id){
+    var el = document.querySelector('.price[data-id="'+id+'"]');
+    if(!el){ return 0; }
+    var base = parseInt(el.getAttribute("data-price"),10) || 0;
+    var ov = store[id] || {};
+    return ov.price != null ? ov.price : base;
+  }
+  function deviceName(id){
+    var row = document.querySelector('.row[data-name] .price[data-id="'+id+'"]');
+    if(row){
+      var tr = row;
+      while(tr && tr.tagName !== "TR"){ tr = tr.parentNode; }
+      if(tr){ return tr.getAttribute("data-name"); }
+    }
+    var card = document.querySelector('.price[data-id="'+id+'"]');
+    if(card){
+      var c = card;
+      while(c && c.className.indexOf("card") < 0){ c = c.parentNode; if(!c){ break; } }
+      if(c){
+        var t = c.querySelector(".ctitle");
+        var s = c.querySelector(".csub");
+        return (t?t.textContent:"") + " " + (s?s.textContent:"");
+      }
+    }
+    return id;
+  }
+
+  /* ===== updates card ===== */
+  function renderUpdates(){
+    var card = getEl("updatesCard");
+    var list = getEl("updatesList");
+    var t = todayStr();
+    var html = "";
+    var count = 0;
+    var k;
+    for(k in store){
+      if(!store.hasOwnProperty(k)){ continue; }
+      var ov = store[k];
+      if(ov && ov.date === t){
+        count++;
+        var nm = deviceName(k);
+        var oldTxt = ov.oldSold ? "نفذ" : (ov.old != null ? fmt(ov.old) : "—");
+        var newTxt = ov.status === "sold" ? "نفذ" : fmt(ov.price != null ? ov.price : effectivePrice(k));
+        html += '<li><span class="nm">'+escapeHtml(nm)+'</span> <span class="old">'+oldTxt+'</span> <span class="arrow">←</span> <span class="new">'+newTxt+'</span></li>';
+      }
+    }
+    if(count > 0){
+      list.innerHTML = html;
+      card.style.display = "block";
+    }else{
+      card.style.display = "none";
+    }
+  }
+
+  function escapeHtml(s){
+    s = String(s);
+    s = s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    return s;
+  }
+
+  /* ===== record a change ===== */
+  function applyChange(id, newPrice, newStatus){
+    var el = document.querySelector('.price[data-id="'+id+'"]');
+    if(!el){ return; }
+    var base = parseInt(el.getAttribute("data-price"),10) || 0;
+    var baseSold = el.getAttribute("data-sold") === "1";
+    var baseStatus = el.getAttribute("data-status") || "active";
+    var prev = store[id] || {};
+
+    var curPrice = prev.price != null ? prev.price : base;
+    var curStatus = prev.status != null ? prev.status : (baseSold ? "sold" : baseStatus);
+    var curSold = (curStatus === "sold");
+
+    var changed = false;
+    if(newStatus == null){ newStatus = curStatus; }
+    if(newPrice == null){ newPrice = curPrice; }
+    if(newPrice !== curPrice || newStatus !== curStatus){ changed = true; }
+    if(!changed){ return; }
+
+    store[id] = {
+      price: newStatus === "sold" ? curPrice : newPrice,
+      status: newStatus,
+      old: curPrice,
+      oldSold: curSold,
+      date: todayStr()
+    };
+  }
+
+  /* ===== tabs ===== */
+  function initTabs(){
+    var btns = document.querySelectorAll(".tab-btn");
+    var i;
+    for(i=0;i<btns.length;i++){
+      btns[i].onclick = function(){
+        var tab = this.getAttribute("data-tab");
+        var all = document.querySelectorAll(".tab-btn");
+        var j;
+        for(j=0;j<all.length;j++){ all[j].className = "tab-btn"; }
+        this.className = "tab-btn active";
+        var panels = document.querySelectorAll(".panel");
+        for(j=0;j<panels.length;j++){ panels[j].className = "panel"; }
+        var p = getEl("tab-"+tab);
+        if(p){ p.className = "panel active"; }
+        window.scrollTo(0,0);
+      };
+    }
+  }
+
+  /* ===== accordions ===== */
+  function initAcc(){
+    var heads = document.querySelectorAll(".acc-head");
+    var i;
+    for(i=0;i<heads.length;i++){
+      heads[i].onclick = function(){
+        var acc = this.parentNode;
+        if(acc.className.indexOf("open") >= 0){ acc.className = "acc"; }
+        else{ acc.className = "acc open"; }
+      };
+    }
+    updateCounts();
+  }
+  function updateCounts(){
+    var accs = document.querySelectorAll(".acc");
+    var i;
+    for(i=0;i<accs.length;i++){
+      var rows = accs[i].querySelectorAll("tr.row");
+      var visible = 0;
+      var j;
+      for(j=0;j<rows.length;j++){ if(rows[j].style.display !== "none"){ visible++; } }
+      var c = accs[i].querySelector(".count");
+      if(c){ c.textContent = visible + " جهاز"; }
+    }
+  }
+
+  /* ===== normalize for search / matching ===== */
+  function normalize(s){
+    s = String(s).toLowerCase();
+    var out = "";
+    var i;
+    for(i=0;i<s.length;i++){
+      var c = s.charAt(i);
+      var code = s.charCodeAt(i);
+      if((c>="a"&&c<="z")||(c>="0"&&c<="9")||c===" "){ out += c; }
+      else if(code>=0x0600 && code<=0x06FF){ out += c; }
+      else{ out += " "; }
+    }
+    return out.replace(/\s+/g," ").replace(/^\s|\s$/g,"");
+  }
+  function synToken(t){
+    if(t==="2tera"||t==="2t"||t==="2tb"){ return "2tb"; }
+    if(t==="1tera"||t==="1ter"||t==="1t"||t==="1tb"){ return "1tb"; }
+    if(t==="tera"||t==="tb"||t==="gb"||t==="g"){ return ""; }
+    if(t==="esim"||t==="e"){ return "esim"; }
+    if(t==="ar"){ return "ar"; }
+    if(t==="color"||t==="colour"){ return "color"; }
+    return t;
+  }
+  function tokens(s){
+    var raw = normalize(s).split(" ");
+    var out = [];
+    var i;
+    for(i=0;i<raw.length;i++){
+      var t = synToken(raw[i]);
+      if(t && t.length>0){ out.push(t); }
+    }
+    return out;
+  }
+  var STORAGE_TOKENS = ["64","128","256","512","1tb","2tb"];
+  function hasStorage(arr){
+    var i,j;
+    for(i=0;i<arr.length;i++){
+      for(j=0;j<STORAGE_TOKENS.length;j++){ if(arr[i]===STORAGE_TOKENS[j]){ return arr[i]; } }
+    }
+    return "";
+  }
+
+  /* ===== search + filters (iphone) ===== */
+  var currentFilter = "all";
+  function applyFilters(){
+    var q = normalize(getEl("searchInput").value);
+    var rows = document.querySelectorAll("#tab-iphone tr.row");
+    var active = (q !== "" || currentFilter !== "all");
+    var i;
+    for(i=0;i<rows.length;i++){
+      var row = rows[i];
+      var name = row.getAttribute("data-name") + " " + (row.getAttribute("data-notes")||"");
+      var origin = row.getAttribute("data-origin");
+      var inc = row.getAttribute("data-incentive") === "1";
+      var okF = (currentFilter === "all") || (currentFilter === "incentive" ? inc : origin === currentFilter);
+      var okQ = (q === "") || (normalize(name).indexOf(q) >= 0);
+      row.style.display = (okF && okQ) ? "" : "none";
+    }
+    var accs = document.querySelectorAll("#tab-iphone .acc");
+    for(i=0;i<accs.length;i++){
+      var rs = accs[i].querySelectorAll("tr.row");
+      var vis = 0;
+      var j;
+      for(j=0;j<rs.length;j++){ if(rs[j].style.display !== "none"){ vis++; } }
+      if(vis === 0){ accs[i].style.display = "none"; }
+      else{
+        accs[i].style.display = "";
+        if(active && accs[i].className.indexOf("open") < 0){ accs[i].className = "acc open"; }
+      }
+    }
+    updateCounts();
+  }
+  function initSearch(){
+    getEl("searchInput").oninput = applyFilters;
+    var fbtns = document.querySelectorAll("#filters .fbtn");
+    var i;
+    for(i=0;i<fbtns.length;i++){
+      fbtns[i].onclick = function(){
+        var all = document.querySelectorAll("#filters .fbtn");
+        var j;
+        for(j=0;j<all.length;j++){ all[j].className = "fbtn"; }
+        this.className = "fbtn active";
+        currentFilter = this.getAttribute("data-filter");
+        applyFilters();
+      };
+    }
+  }
+
+  /* ===== edit popup ===== */
+  var editingId = null;
+  function openEdit(id){
+    editingId = id;
+    var el = document.querySelector('.price[data-id="'+id+'"]');
+    if(!el){ return; }
+    var base = parseInt(el.getAttribute("data-price"),10) || 0;
+    var baseSold = el.getAttribute("data-sold") === "1";
+    var baseStatus = el.getAttribute("data-status") || "active";
+    var ov = store[id] || {};
+    var price = ov.price != null ? ov.price : base;
+    var status = ov.status != null ? ov.status : (baseSold ? "sold" : baseStatus);
+    getEl("editName").textContent = deviceName(id);
+    getEl("editPrice").value = price;
+    getEl("editStatus").value = status;
+    getEl("editOverlay").className = "overlay show";
+  }
+  function closeEdit(){ getEl("editOverlay").className = "overlay"; editingId = null; }
+  function initEdit(){
+    document.body.addEventListener("click", function(ev){
+      var t = ev.target;
+      while(t && t !== document.body){
+        if(t.className && String(t.className).indexOf("price") >= 0 && t.getAttribute("data-id")){
+          openEdit(t.getAttribute("data-id"));
+          return;
+        }
+        t = t.parentNode;
+      }
+    });
+    getEl("editCancel").onclick = closeEdit;
+    getEl("editOverlay").onclick = function(ev){ if(ev.target === this){ closeEdit(); } };
+    getEl("editSave").onclick = function(){
+      if(!editingId){ return; }
+      var status = getEl("editStatus").value;
+      var price = parseInt(getEl("editPrice").value,10);
+      if(isNaN(price)){ price = null; }
+      applyChange(editingId, price, status);
+      saveStore();
+      renderAll();
+      renderSetList();
+      applyFilters();
+      beep();
+      closeEdit();
+    };
+  }
+
+  /* ===== registry for matching ===== */
+  var registry = [];
+  function buildRegistry(){
+    registry = [];
+    var els = document.querySelectorAll(".price[data-id]");
+    var i;
+    for(i=0;i<els.length;i++){
+      var el = els[i];
+      var id = el.getAttribute("data-id");
+      var nm = deviceName(id);
+      registry.push({ id:id, name:nm, toks:tokens(nm) });
+    }
+  }
+  function overlapScore(a, b){
+    var score = 0;
+    var i,j;
+    for(i=0;i<a.length;i++){
+      for(j=0;j<b.length;j++){
+        if(a[i]===b[j]){ score++; break; }
+      }
+    }
+    return score;
+  }
+  function bestMatch(srcToks){
+    var srcStore = hasStorage(srcToks);
+    var best = null, bestScore = 0;
+    var i;
+    for(i=0;i<registry.length;i++){
+      var it = registry[i];
+      var itStore = hasStorage(it.toks);
+      if(srcStore && itStore && srcStore !== itStore){ continue; }
+      var sc = overlapScore(srcToks, it.toks);
+      if(sc > bestScore){ bestScore = sc; best = it; }
+    }
+    if(bestScore >= 3){ return best; }
+    return null;
+  }
+
+  /* ===== paste processing ===== */
+  var priceRe = /(\d{1,4}(?:[.,]\d{3})+)/;
+  function parsePrice(str){
+    var m = str.match(priceRe);
+    if(!m){ return null; }
+    var n = parseInt(m[1].replace(/[.,]/g,""),10);
+    if(isNaN(n) || n < 100000){ return null; }
+    return n;
+  }
+  var pendingChanges = [];
+  function processPaste(){
+    var text = getEl("pasteArea").value || "";
+    var lines = text.split(/\r?\n/);
+    var pendingName = "";
+    var seen = {};
+    pendingChanges = [];
+    var i;
+    for(i=0;i<lines.length;i++){
+      var line = lines[i];
+      var price = parsePrice(line);
+      if(price !== null){
+        var lineToks = tokens(line);
+        var useToks;
+        if(hasStorage(lineToks)){ useToks = lineToks; }
+        else if(pendingName){ useToks = tokens(pendingName); }
+        else{ useToks = lineToks; }
+        var match = bestMatch(useToks);
+        if(match && !seen[match.id]){
+          var oldP = effectivePrice(match.id);
+          if(oldP !== price){
+            seen[match.id] = true;
+            pendingChanges.push({ id:match.id, name:match.name, old:oldP, neu:price });
+          }
+        }
+        pendingName = "";
+      }else{
+        var nt = tokens(line);
+        if(nt.length > 0 && /[a-z0-9\u0600-\u06FF]/.test(line)){ pendingName = line; }
+      }
+    }
+    renderPreview();
+  }
+  function renderPreview(){
+    var pv = getEl("preview");
+    var html = "";
+    var i;
+    if(pendingChanges.length === 0){
+      html = '<div class="none">لم يتم العثور على أي تغييرات مطابقة. تأكّد أن النص يحتوي أسماء أجهزة وأسعار.</div>';
+      getEl("confirmBtn").style.display = "none";
+    }else{
+      for(i=0;i<pendingChanges.length;i++){
+        var c = pendingChanges[i];
+        html += '<div class="pv"><span class="nm">'+escapeHtml(c.name)+'</span> <span class="old">'+fmt(c.old)+'</span> <span class="arrow">←</span> <span class="new">'+fmt(c.neu)+'</span></div>';
+      }
+      getEl("confirmBtn").style.display = "inline-block";
+    }
+    pv.innerHTML = html;
+    pv.style.display = "flex";
+  }
+  function confirmPaste(){
+    var i;
+    for(i=0;i<pendingChanges.length;i++){
+      var c = pendingChanges[i];
+      applyChange(c.id, c.neu, null);
+    }
+    saveStore();
+    renderAll();
+    renderSetList();
+    applyFilters();
+    beep();
+    pendingChanges = [];
+    getEl("preview").innerHTML = '<div class="none">✓ تم حفظ التغييرات بنجاح.</div>';
+    getEl("confirmBtn").style.display = "none";
+  }
+  function initPaste(){
+    getEl("processBtn").onclick = processPaste;
+    getEl("confirmBtn").onclick = confirmPaste;
+  }
+
+  /* ===== settings list ===== */
+  function renderSetList(){
+    var list = getEl("setList");
+    var q = normalize(getEl("setSearch").value);
+    var html = "";
+    var i;
+    for(i=0;i<registry.length;i++){
+      var it = registry[i];
+      if(q !== "" && normalize(it.name).indexOf(q) < 0){ continue; }
+      var ov = store[it.id] || {};
+      var el = document.querySelector('.price[data-id="'+it.id+'"]');
+      var baseSold = el && el.getAttribute("data-sold") === "1";
+      var baseStatus = el ? (el.getAttribute("data-status")||"active") : "active";
+      var status = ov.status != null ? ov.status : (baseSold ? "sold" : baseStatus);
+      var disp = status === "sold" ? "نفذ" : fmt(effectivePrice(it.id));
+      html += '<div class="sli"><span class="nm">'+escapeHtml(it.name)+'</span><span class="price" data-id="'+it.id+'" data-price="'+(el?el.getAttribute("data-price"):0)+'" data-status="'+baseStatus+'"'+(baseSold?' data-sold="1"':'')+'>'+disp+'</span></div>';
+    }
+    if(html === ""){ html = '<div style="padding:14px;color:var(--muted);font-size:13px">لا نتائج.</div>'; }
+    list.innerHTML = html;
+  }
+  function initSet(){
+    getEl("setSearch").oninput = renderSetList;
+    getEl("resetBtn").onclick = function(){
+      store = {};
+      saveStore();
+      renderAll();
+      renderSetList();
+      applyFilters();
+    };
+  }
+
+  /* ===== about ===== */
+  function initAbout(){
+    getEl("aboutBtn").onclick = function(){ getEl("aboutOverlay").className = "overlay show"; };
+    getEl("aboutClose").onclick = function(){ getEl("aboutOverlay").className = "overlay"; };
+    getEl("aboutOverlay").onclick = function(ev){ if(ev.target === this){ this.className = "overlay"; } };
+  }
+
+  /* ===== init ===== */
+  function init(){
+    loadStore();
+    buildRegistry();
+    initTabs();
+    initAcc();
+    initSearch();
+    initEdit();
+    initPaste();
+    initSet();
+    initAbout();
+    renderAll();
+    renderSetList();
+    applyFilters();
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  }else{
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>
